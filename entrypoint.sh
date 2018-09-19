@@ -2,11 +2,14 @@
 
 set -e
 
-# Check if the block state exists
+GENESIS_ARG="--genesis-json /genesis.json"
 if [ -d "/data/blocks" ]; then
-  # If yes start and hard replay existing blocks
-  exec nodeos --config /config.ini --data-dir /data --hard-replay
-else
-  # Otherwise bootstrap with genesis block
-  exec nodeos --config /config.ini --data-dir /data --genesis-json /genesis.json
+  GENESIS_ARG=""
 fi
+
+SIGNATURE_ARG=""
+if ! [ -z "$SIGNATURE_PROVIDER_PATH" ]; then
+  SIGNATURE_ARG="--signature-provider $(cat $SIGNATURE_PROVIDER_PATH)"
+fi
+
+exec nodeos --config /config.ini --data-dir /data $SIGNATURE_ARG $GENESIS_ARG $NODEOS_ARGS
